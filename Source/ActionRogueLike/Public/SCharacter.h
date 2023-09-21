@@ -6,8 +6,10 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+
 class UCameraComponent;
 class USpringArmComponent;
+class USInteractionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -17,10 +19,15 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
-
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor>ProjectileClass;
 protected:
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* springArmComp;
+
+	UPROPERTY(VisibleAnywhere)
+	USInteractionComponent* InteractionComp;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* cameraComp;
@@ -28,6 +35,8 @@ protected:
 	virtual void BeginPlay() override;
 	void MoveForward(float value);
 	void MoveRight(float value);
+	void PrimaryAttack();
+	void PrimaryInteract();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
