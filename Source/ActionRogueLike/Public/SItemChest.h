@@ -11,6 +11,8 @@ UCLASS()
 class ACTIONROGUELIKE_API ASItemChest : public AActor,public ISGamePlayInterface
 {
 	GENERATED_BODY()
+public:
+
 	void Interact_Implementation(APawn* InstigatorPawn);
 	
 public:
@@ -24,7 +26,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UStaticMeshComponent* LidMesh;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
