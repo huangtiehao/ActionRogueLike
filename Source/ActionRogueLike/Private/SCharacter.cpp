@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
+#include "SAttributeComponent.h"
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -21,6 +22,7 @@ ASCharacter::ASCharacter()
 	cameraComp->SetupAttachment(springArmComp);
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
@@ -61,7 +63,30 @@ void ASCharacter::PrimaryAttack()
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	
+	FVector TraceStart = cameraComp->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (cameraComp->GetComponentRotation().Vector() * 5000);
+	
+	FCollisionShape shape;
+	//¼ì²â°ë¾¶
+	shape.SetSphere(20.0f);
+	//ºöÂÔ×ÔÉíµÄÅö×²
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	
+	FCollisionObjectQueryParams objParams;
+	objParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	objParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	objParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FHitResult Hit;
+	//·¢ÉäÉäÏß¼ì²âÅö×²
+	if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, objParams, shape, params)) {
+		TraceEnd = Hit.ImpactPoint;
+	}
+
+	FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+	FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
